@@ -1,0 +1,4 @@
+Fold: 7
+Total training time: 117.56 seconds
+Total training time: 0:01:57
+Average time per epoch: 3.92 seconds
