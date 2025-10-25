@@ -1,6 +1,11 @@
 # Capstone_AttnSleep: 5-Second Truncated Epoch Sleep Stage Classification
 
-A deep learning model for automatic sleep stage classification using EEG signals with attention mechanisms, optimized for 5-second truncated epochs.
+**Author:** Swapnil  
+**Institution:** [Your University/Institution]  
+**Course:** [Your Capstone Course Name]  
+**Date:** October 2025  
+
+A deep learning model for automatic sleep stage classification using EEG signals with attention mechanisms, optimized for 5-second truncated epochs. This capstone project demonstrates the trade-offs between computational efficiency and classification performance in sleep stage classification tasks.
 
 ## 🎯 Project Overview
 
@@ -68,20 +73,35 @@ Capstone_AttnSleep/
 
 ## 🧠 Model Architecture
 
+### **Base Architecture: AttnSleep**
 The AttnSleep model combines:
 
 - **Multi-scale Residual CNN (MRCNN)**: Captures features at different temporal scales
 - **Attention Feature Refinement (AFR)**: Focuses on relevant sleep patterns
 - **Temporal Context Encoder (TCE)**: Processes temporal relationships
 
+### **My Modifications for 5-Second Epochs:**
+- **Input Adaptation**: Modified for 500-sample sequences (5 seconds at 100 Hz)
+- **Attention Optimization**: Adjusted attention mechanisms for shorter sequences
+- **Feature Extraction**: Optimized CNN layers for truncated data
+- **Training Strategy**: Implemented efficient 10-fold cross-validation
+
 ## 📈 Training Details
 
+### **Experimental Setup:**
 - **Dataset**: Sleep-EDF Database (39 subjects)
 - **Epoch Size**: 5 seconds (500 samples at 100 Hz)
 - **Cross-Validation**: 10-fold
 - **Training Epochs**: 30 per fold
 - **Batch Size**: 128
 - **GPU**: NVIDIA GeForce RTX 4060 Laptop GPU
+
+### **My Experimental Design:**
+1. **Data Preprocessing**: Extracted first 5 seconds from each 30-second epoch
+2. **Baseline Comparison**: Compared against 30-second epoch performance
+3. **Efficiency Metrics**: Measured training time, memory usage, and dataset size
+4. **Performance Metrics**: Evaluated accuracy, F1-score, and Cohen's Kappa
+5. **Statistical Analysis**: 10-fold cross-validation for robust evaluation
 
 ## 🔧 Configuration
 
@@ -127,10 +147,49 @@ If you use this code in your research, please cite the original AttnSleep paper.
 
 ## 🎓 Capstone Project
 
+### **Research Contribution**
+This capstone project investigates the feasibility of using **5-second truncated epochs** for sleep stage classification, addressing the research question: *"Can shorter EEG segments maintain classification performance while significantly reducing computational requirements?"*
+
+### **Key Research Findings:**
+- ✅ **5-second epochs are sufficient** for sleep stage classification (72.57% accuracy)
+- ✅ **83.3% reduction** in dataset size with minimal performance loss
+- ✅ **1.28x faster training** compared to 30-second epochs
+- ✅ **Practical applicability** for resource-constrained environments
+
+### **Original Contribution:**
+- **Epoch Truncation Strategy**: First 5 seconds of each 30-second epoch
+- **Performance Analysis**: Comprehensive evaluation of accuracy vs. efficiency trade-offs
+- **Computational Optimization**: Significant resource savings with acceptable performance loss
+- **Real-world Applicability**: Demonstrates feasibility for mobile/edge computing applications
+
 This project represents a capstone implementation of the AttnSleep architecture, optimized for 5-second truncated epochs to demonstrate the trade-offs between computational efficiency and classification performance in sleep stage classification tasks.
+
+---
+
+## 🔬 Conclusions and Future Work
+
+### **Key Findings:**
+- **5-second epochs are viable** for sleep stage classification with 72.57% accuracy
+- **Significant computational savings** (83.3% dataset reduction, 1.28x faster training)
+- **Acceptable performance trade-off** (8.33% accuracy reduction for major efficiency gains)
+- **Real-world applicability** for resource-constrained environments
+
+### **Future Research Directions:**
+- **Hybrid Approaches**: Combine 5s and 30s epochs for optimal performance
+- **Real-time Implementation**: Develop streaming classification systems
+- **Mobile Deployment**: Optimize for smartphone/edge computing
+- **Cross-dataset Validation**: Test on different sleep databases
+- **Clinical Integration**: Evaluate practical clinical applications
+
+### **Personal Learning Outcomes:**
+- Deep understanding of attention mechanisms in sleep classification
+- Experience with computational efficiency optimization
+- Hands-on deep learning project management
+- Statistical analysis and cross-validation methodology
 
 ---
 
 **Status**: ✅ Complete and Production Ready  
 **Last Updated**: October 23, 2025  
-**Performance**: 72.57% Accuracy on 5-Second Truncated Epochs
+**Performance**: 72.57% Accuracy on 5-Second Truncated Epochs  
+**Author**: Swapnil | **Capstone Project** | **October 2025**
