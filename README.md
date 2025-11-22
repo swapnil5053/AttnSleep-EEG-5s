@@ -1,195 +1,101 @@
-# Capstone_AttnSleep: 5-Second Truncated Epoch Sleep Stage Classification
+# AttnSleep: 5-Second Truncated Epoch Sleep Classification
 
-**Author:** Swapnil  
-**Institution:** [Your University/Institution]  
-**Course:** [Your Capstone Course Name]  
-**Date:** October 2025  
+A deep learning model for classifying sleep stages from EEG signals. The standard approach uses 30-second epochs, but I tested whether using just the first 5 seconds would be fast enough while maintaining reasonable accuracy.
 
-A deep learning model for automatic sleep stage classification using EEG signals with attention mechanisms, optimized for 5-second truncated epochs. This capstone project demonstrates the trade-offs between computational efficiency and classification performance in sleep stage classification tasks.
+**TL;DR:** 72.57% accuracy on 5-second windows. That's 8% worse than 30-second windows, but training is 1.28x faster and uses 83% less data. Worth it for resource-constrained systems.
 
-## 🎯 Project Overview
+## Results
 
-This project implements the AttnSleep architecture with a focus on **5-second truncated epochs** for faster training and reduced computational requirements. The model achieves **72.57% accuracy** on sleep stage classification using only the first 5 seconds of each 30-second epoch.
+| Metric | 5s Epochs | 30s Epochs (baseline) |
+|--------|-----------|----------------------|
+| Accuracy | 72.57% | 80.9% |
+| F1-Score | 72.97% | 75.5% |
+| Cohen's Kappa | 0.6262 | 0.7088 |
+| Training Time | 20 min | 25.6 min |
+| Dataset Size | 500 samples | 3000 samples |
 
-## 📊 Performance Results
+The accuracy drop is predictable—less signal means harder to classify. But the speed and size benefits are real.
 
-### 5-Second Truncated Epoch Results (Final Output)
-
-| Metric | Value |
-|--------|-------|
-| **Accuracy** | 72.57% |
-| **Weighted F1-Score** | 72.97% |
-| **Cohen's Kappa (κ)** | 0.6262 |
-| **Training Time** | 20 min 19 sec |
-| **Epoch Length** | 5 seconds (500 samples) |
-| **Cross-Validation** | 10-fold |
-| **Total Epochs** | 42,308 |
-
-### Key Benefits of 5-Second Truncated Epochs
-
-- ✅ **6x smaller dataset** (83.3% reduction in size)
-- ✅ **Faster training** (1.5x - 2.5x speedup)
-- ✅ **Lower memory requirements**
-- ✅ **Same number of epochs** as original data
-- ✅ **Maintained performance** with minimal accuracy loss
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
+## Quick Start
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. Train the Model
-
-```bash
 python train_Kfold_CV.py --config config.json --fold_id 0 --device 0 --np_data_dir edf_true_5s_npz
 ```
 
-### 3. View Results
+Results go to `results/Exp_5s_best/`.
 
-Results are automatically saved in the `results/Exp_5s_best/` directory:
-- Classification report: `Exp_5s_best_classification_report.xlsx`
-- Confusion matrix: `Exp_5s_best_confusion_matrix.torch`
-- Training time summary: `Exp_5s_best_training_time_summary.txt`
+## The Approach
 
-## 📁 Project Structure
+I took the AttnSleep architecture (multi-scale CNN + attention + temporal encoder) and retrained it on 5-second windows instead of 30-second ones. The network adapts to shorter sequences, and I evaluated it with 10-fold cross-validation on the Sleep-EDF database (39 subjects).
+
+The main changes were:
+- Input size: 500 samples instead of 3000
+- Attention mechanism recalibrated for shorter sequences
+- Everything else stayed the same
+
+## Architecture
+
+AttnSleep uses three components:
+- **Multi-scale Residual CNN**: Captures patterns at different time scales
+- **Attention Feature Refinement**: Learns which parts of the EEG matter for sleep staging
+- **Temporal Context Encoder**: Models relationships between time steps
+
+For 5-second windows, I adjusted the attention and CNN layer sizes to work with the smaller input.
+
+## Why This Matters
+
+Sleep staging with wearable devices or edge hardware is limited by compute. If you can get decent accuracy in 5 seconds instead of 30, that opens up applications on phones or smartwatches. The trade-off here is clear: you lose 8% accuracy but gain massive speed and storage savings.
+
+## Setup
 
 ```
 Capstone_AttnSleep/
-├── edf_true_5s_npz/          # 5-second epoch dataset (39 files)
-├── results/Exp_5s_best/      # Best 5s epoch results
-├── model/                    # Neural network models
-├── trainer/                  # Training logic
-├── data_loader/             # Data loading utilities
-├── base/                     # Base trainer classes
-├── logger/                   # Logging configuration
-├── utils/                    # Utility functions
-├── train_Kfold_CV.py        # Main training script
-├── config.json              # Configuration file
-└── requirements.txt         # Python dependencies
+├── edf_true_5s_npz/       # 5-second epoch dataset
+├── results/Exp_5s_best/   # Output metrics and confusion matrices
+├── model/                 # Neural network code
+├── trainer/               # Training loop
+├── data_loader/           # Dataset handling
+├── train_Kfold_CV.py      # Main script
+├── config.json            # Hyperparameters
+└── requirements.txt
 ```
 
-## 🧠 Model Architecture
+## Configuration
 
-### **Base Architecture: AttnSleep**
-The AttnSleep model combines:
+Edit `config.json` for:
+- Batch size (default 128)
+- Learning rate
+- Number of training epochs (30)
+- Fold count (10-fold CV)
 
-- **Multi-scale Residual CNN (MRCNN)**: Captures features at different temporal scales
-- **Attention Feature Refinement (AFR)**: Focuses on relevant sleep patterns
-- **Temporal Context Encoder (TCE)**: Processes temporal relationships
+## Testing
 
-### **My Modifications for 5-Second Epochs:**
-- **Input Adaptation**: Modified for 500-sample sequences (5 seconds at 100 Hz)
-- **Attention Optimization**: Adjusted attention mechanisms for shorter sequences
-- **Feature Extraction**: Optimized CNN layers for truncated data
-- **Training Strategy**: Implemented efficient 10-fold cross-validation
+The model was tested on Sleep-EDF with 10-fold cross-validation. Each fold trains for 30 epochs on an RTX 4060. Training time is logged per fold.
 
-## 📈 Training Details
+## Key Findings
 
-### **Experimental Setup:**
-- **Dataset**: Sleep-EDF Database (39 subjects)
-- **Epoch Size**: 5 seconds (500 samples at 100 Hz)
-- **Cross-Validation**: 10-fold
-- **Training Epochs**: 30 per fold
-- **Batch Size**: 128
-- **GPU**: NVIDIA GeForce RTX 4060 Laptop GPU
+**It works.** 72.57% accuracy on 5-second windows is reasonable for a resource-constrained system. You're losing classification power compared to 30-second windows, but you gain:
+- 83% smaller dataset
+- 28% faster training
+- Viable for real-time or edge deployment
 
-### **My Experimental Design:**
-1. **Data Preprocessing**: Extracted first 5 seconds from each 30-second epoch
-2. **Baseline Comparison**: Compared against 30-second epoch performance
-3. **Efficiency Metrics**: Measured training time, memory usage, and dataset size
-4. **Performance Metrics**: Evaluated accuracy, F1-score, and Cohen's Kappa
-5. **Statistical Analysis**: 10-fold cross-validation for robust evaluation
+**The accuracy drop isn't surprising.** Half the signal data means the model has less to work with. But the attention mechanism helps—it learns which parts of those 5 seconds matter most.
 
-## 🔧 Configuration
+**Next steps** would be testing on other sleep databases, trying hybrid approaches (mix 5s and 30s epochs), or optimizing for actual mobile/wearable deployment.
 
-Edit `config.json` to adjust:
-- Batch size and number of folds
-- Learning rate and optimizer settings
-- Number of training epochs
-- Model architecture parameters
-
-## 📊 Results Analysis
-
-The 5-second truncated epoch approach shows:
-
-- **Accuracy**: 72.57% (down 8.33% from 30s epochs)
-- **F1-Score**: 72.97% (down 2.53% from 30s epochs)
-- **Training Speed**: 1.28x faster than 30s epochs
-- **Memory Usage**: 83.3% reduction
-
-## 🎯 Key Features
-
-- **Automatic Training Time Tracking**: Comprehensive timing reports
-- **Cross-Validation**: Robust 10-fold evaluation
-- **GPU Acceleration**: CUDA support for faster training
-- **Flexible Configuration**: Easy parameter adjustment
-- **Comprehensive Logging**: Detailed training and evaluation logs
-
-## 📋 Requirements
+## Requirements
 
 - Python 3.7+
 - PyTorch 2.2.0+
-- NumPy
-- Scikit-learn
-- Pandas
-- OpenPyXL
+- NumPy, scikit-learn, Pandas, OpenPyXL
 
-## 📄 License
+## Citation
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📚 Citation
-
-If you use this code in your research, please cite the original AttnSleep paper.
-
-## 🎓 Capstone Project
-
-### **Research Contribution**
-This capstone project investigates the feasibility of using **5-second truncated epochs** for sleep stage classification, addressing the research question: *"Can shorter EEG segments maintain classification performance while significantly reducing computational requirements?"*
-
-### **Key Research Findings:**
-- ✅ **5-second epochs are sufficient** for sleep stage classification (72.57% accuracy)
-- ✅ **83.3% reduction** in dataset size with minimal performance loss
-- ✅ **1.28x faster training** compared to 30-second epochs
-- ✅ **Practical applicability** for resource-constrained environments
-
-### **Original Contribution:**
-- **Epoch Truncation Strategy**: First 5 seconds of each 30-second epoch
-- **Performance Analysis**: Comprehensive evaluation of accuracy vs. efficiency trade-offs
-- **Computational Optimization**: Significant resource savings with acceptable performance loss
-- **Real-world Applicability**: Demonstrates feasibility for mobile/edge computing applications
-
-This project represents a capstone implementation of the AttnSleep architecture, optimized for 5-second truncated epochs to demonstrate the trade-offs between computational efficiency and classification performance in sleep stage classification tasks.
+Based on the AttnSleep architecture. If you build on this, cite the original AttnSleep paper and mention the 5-second truncation variant.
 
 ---
 
-## 🔬 Conclusions and Future Work
-
-### **Key Findings:**
-- **5-second epochs are viable** for sleep stage classification with 72.57% accuracy
-- **Significant computational savings** (83.3% dataset reduction, 1.28x faster training)
-- **Acceptable performance trade-off** (8.33% accuracy reduction for major efficiency gains)
-- **Real-world applicability** for resource-constrained environments
-
-### **Future Research Directions:**
-- **Hybrid Approaches**: Combine 5s and 30s epochs for optimal performance
-- **Real-time Implementation**: Develop streaming classification systems
-- **Mobile Deployment**: Optimize for smartphone/edge computing
-- **Cross-dataset Validation**: Test on different sleep databases
-- **Clinical Integration**: Evaluate practical clinical applications
-
-### **Personal Learning Outcomes:**
-- Deep understanding of attention mechanisms in sleep classification
-- Experience with computational efficiency optimization
-- Hands-on deep learning project management
-- Statistical analysis and cross-validation methodology
-
----
-
-**Status**: ✅ Complete and Production Ready  
-**Last Updated**: October 23, 2025  
-**Performance**: 72.57% Accuracy on 5-Second Truncated Epochs  
-**Author**: Swapnil | **Capstone Project** | **October 2025**
+**Status:** Complete  
+**Accuracy:** 72.57% on 5-second epochs  
+**Best for:** Resource-constrained environments where speed matters more than peak accuracy
