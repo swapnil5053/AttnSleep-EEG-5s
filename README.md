@@ -1,4 +1,4 @@
-# Capstone_AttnSleep
+# 5_Sec_AttnSleep
 
 ![Python](https://img.shields.io/badge/Python-3.7%2B-blue?logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.2.0-EE4C2C?logo=pytorch&logoColor=white)
